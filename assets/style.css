@@ -1,0 +1,22 @@
+#wrapper {
+	width: 80%;
+	margin: 0 auto;
+}
+
+#graph {
+	border: 1px black;
+	margin: 0 auto;
+	cursor: zoom-in;
+	max-width: 100%;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  font-size: 20px;
+  padding: 5px;
+}
+
+form {
+	margin: 20px auto;
+}
+
