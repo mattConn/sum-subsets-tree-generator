@@ -1,19 +1,16 @@
 package main
 
 import (
-//	"fmt"
 	"os/exec"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 )
 
-type tree struct {
+type templateData struct {
 	Input, Output       []int
-	SumTimeElapsed, PlotTimeElapsed, TotalTimeElapsed time.Duration
 }
 
 // make array-based binary tree for sums of subsets of input
@@ -43,28 +40,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	output := make([]int, 1<<(len(nums)+1)-1) // accomodate all nodes for breadth-first representation
 
-	sumStart := time.Now()
 	fillSumTree(nums,output,0,0)
-	sumFinish := time.Since(sumStart)
 
 	outputString := []string{}
 	for _,v := range output {
 		outputString = append(outputString,strconv.Itoa(v))
 	}
 
-	plotStart := time.Now()
 	//  err := exec.Command("./graph-plotter.py", outputString...).Run()
 	exec.Command("./graph-plotter.py", outputString...).Run()
-	plotFinish := time.Since(plotStart)
 	/*
 	if err != nil {
 		fmt.Println(err)
 	}
 	*/
 
-	totalTime := sumFinish + plotFinish
-
-	t.Execute(w, tree{Input: nums, Output: output, SumTimeElapsed: sumFinish, PlotTimeElapsed: plotFinish, TotalTimeElapsed: totalTime})
+	t.Execute(w, struct { Input, Output []int }{nums, output})
 }
 
 func main() {
