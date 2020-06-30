@@ -28,8 +28,19 @@ func fillSumTree (input, binTree []int, nodeIndex, inputIndex int) {
 
 // handle form input
 func handler(w http.ResponseWriter, r *http.Request) {
+	const MAX_INPUT_LEN int = 10 // max length of input sequence
+
 	// get form input "body", which will be a string of space-separated numbers
 	inputArr := strings.Split(r.FormValue("body"), " ")
+
+	// if input > max input, exit early
+	if (len(inputArr) > MAX_INPUT_LEN){
+		// parse and execute template
+		t, _ := template.ParseFiles("index.html")
+		t.Execute(w, struct { Input, Output []int }{[]int{-1}, []int{-1}})
+
+		return
+	 }
 
 	nums := []int{} // array of input to send to fillSumTree
 	// convert strings in inputArr to integers and append to nums
