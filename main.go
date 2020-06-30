@@ -45,22 +45,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			// => |len of bin. tree| = (2**3)-1 = 7
 	binTree := make([]int, 1<<(len(nums)+1)-1)
 
-	fillSumTree(nums,binTree,0,0)
+	fillSumTree(nums,binTree,0,0) // make binary sum tree
 
+	// cast binTree to array of strings to pass to python script
 	binTreeString := []string{}
 	for _,v := range binTree {
 		binTreeString = append(binTreeString,strconv.Itoa(v))
 	}
 
+	// parse and execute template
 	t, _ := template.ParseFiles("index.html")
+	t.Execute(w, struct { Input, Output []int }{nums, binTree})
+
+	// exec python script (this is done at the end as this will take the longest)
 	exec.Command("./graph-plotter.py", binTreeString...).Run()
 
-	t.Execute(w, struct { Input, Output []int }{nums, binTree})
 }
 
 func main() {
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	http.HandleFunc("/favicon.ico", func (w http.ResponseWriter, r *http.Request){})
 	http.HandleFunc("/", handler)
+	println("Listening on :8081...")
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
