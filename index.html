@@ -26,11 +26,15 @@
 
         <form action="" method="POST">
             <div><h3>Input = <input type="text" placeholder="Space-separated numbers" name="body" autofocus> = {{.Input}}</h3></div>
-	    <div><h3>Output = <textarea rows=1>{{.Output}}</textarea></h3></div>
-            <div><h4><input type="submit" value="Compute"></h4></div>
+	    <div>
+		<h3>Output = <textarea rows=1>{{.Output}}</textarea> <small>Computed in {{.SumTime}}</small></h3>
+	    </div>
+            <div>
+		<h4><input type="submit" value="Compute"></h4>
+	    </div>
         </form>
 
-	<h3>Binary Tree</h3>
+	<h3>Binary Tree <small>Drawn in {{.PlotTime}}</small></h3> 
 	<p>(Click to enlarge)</p>
 	<a href="assets/graph.png" target="_blank"><img id="graph" src="assets/graph.png"></a>
     </div> <!-- end wrapper -->

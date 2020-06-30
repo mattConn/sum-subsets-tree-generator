@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"os/exec"
 	"html/template"
 	"log"
@@ -35,9 +36,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// if input > max input, exit early
 	if (len(inputArr) > MAX_INPUT_LEN){
-		// parse and execute template
+		// parse and execute template with anonymous struct
 		t, _ := template.ParseFiles("index.html")
-		t.Execute(w, struct { Input, Output []int }{[]int{-1}, []int{-1}})
+		t.Execute(w, struct { Input, Output []int; SumTime, PlotTime time.Duration}{[]int{-1}, []int{-1}, time.Duration(-1), time.Duration(-1)})
 
 		return
 	 }
@@ -49,6 +50,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		nums = append(nums, n)
 	}
 
+	/* binary tree data generation */
+
 	// binary tree array to hold sums of all subets.
 	// Length will accomodate all nodes for breadth-first representation
 		// |bin. sum tree| = 2**(|input|+1) - 1
@@ -56,7 +59,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			// => |len of bin. tree| = (2**3)-1 = 7
 	binTree := make([]int, 1<<(len(nums)+1)-1)
 
+	start := time.Now() // time fillSumTree
 	fillSumTree(nums,binTree,0,0) // make binary sum tree
+	sumElapsed := time.Since(start) // record time elapsed
 
 	// cast binTree to array of strings to pass to python script
 	binTreeString := []string{}
@@ -64,12 +69,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		binTreeString = append(binTreeString,strconv.Itoa(v))
 	}
 
-	// parse and execute template
-	t, _ := template.ParseFiles("index.html")
-	t.Execute(w, struct { Input, Output []int }{nums, binTree})
+	/* end binary tree data generation */
 
-	// exec python script (this is done at the end as this will take the longest)
+	/* execute python tree drawing script */
+	start = time.Now() // time python script
+
+	// exec python script
 	exec.Command("./graph-plotter.py", binTreeString...).Run()
+
+	plotElapsed := time.Since(start) // record time elapsed
+
+	/* end execute python tree drawing script */
+
+	// parse and execute template with anonymous struct
+	t, _ := template.ParseFiles("index.html")
+
+	t.Execute(w, struct { Input, Output []int; SumTime, PlotTime time.Duration}{nums, binTree, sumElapsed, plotElapsed})
 
 }
 
